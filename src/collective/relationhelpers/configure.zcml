@@ -6,4 +6,11 @@
     xmlns:browser="http://namespaces.zope.org/browser"
     i18n_domain="collective.relationhelpers">
 
+  <browser:page
+      name="rebuild_relations"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      class=".api.RebuildRelations"
+      permission="cmf.ManagePortal"
+      />
+
 </configure>
