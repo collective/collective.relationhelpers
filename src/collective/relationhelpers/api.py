@@ -40,7 +40,6 @@ class RebuildRelations(BrowserView):
         return self.index()
 
 
-
 def rebuild_relations(report=False):
     store_relations()
     purge_relations()
@@ -85,7 +84,7 @@ def store_relations(context=None):
     """Store all relations in a annotation on the portal.
     """
     all_relations = get_all_relations()
-    portal  = api.portal.get()
+    portal = api.portal.get()
     IAnnotations(portal)[RELATIONS_KEY] = all_relations
     logger.info('Stored {0} relations on the portal'.format(
         len(all_relations))
@@ -269,8 +268,8 @@ def get_field_and_schema_for_fieldname(field_id, fti):
         if field is not None:
             return (field, schema)
 
-# TODO
-# Find all kind of broken values in intid?
+
+# TODO: Find all kind of broken values in intid?
 def cleanup_intids(context=None):
     intids = getUtility(IIntIds)
     for ref in intids.refs.values():
