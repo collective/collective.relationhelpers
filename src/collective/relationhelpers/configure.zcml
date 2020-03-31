@@ -10,6 +10,7 @@
       name="rebuild_relations"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
       class=".api.RebuildRelations"
+      template="form.pt"
       permission="cmf.ManagePortal"
       />
 

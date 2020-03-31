@@ -1,0 +1,82 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="collective.relationhelpers">
+
+<body>
+
+  <metal:content-core fill-slot="main">
+
+    <header>
+      <h1 class="documentFirstHeading">Rebuild zc.relation catalog</h1>
+    </header>
+
+    <div id="content-core">
+
+      <h3>
+        <span tal:condition="python:view.done">Success!</span>
+        Current number of relations in the zc.relation catalog
+      </h3>
+
+      <table class="listing"
+            tal:define="info python: getattr(view, 'info', None)"
+            tal:condition="info">
+        <thead>
+          <tr>
+            <th>Relation</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr tal:repeat="item python:info">
+            <td tal:content="python:item">Type</td>
+            <td tal:content="python:info[item]">Amount</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Common relations:</h3>
+      <dl>
+        <dt>relatedItems</dt>
+        <dd>Relations between content using the default "Related items" field</dd>
+
+        <dt>isReferencing</dt>
+        <dd>Linkintegrity relations (source has a html-link to target)</dd>
+
+        <dt>iterate-working-copy</dt>
+        <dd>Relation from content to a working copy (using plone.app.iterate)</dd>
+
+        <dt>staging-working-copy</dt>
+        <dd>Outdated relation from content to a working copy (using plone.app.stagingbehavior)</dd>
+
+        <dt>(broken)</dt>
+        <dd>Either source or target no longer exist</dd>
+
+        <dt><i>all other</i></dt>
+        <dd>Custom attribute/fieldname used to describe the relation</dd>
+      </dl>
+
+      <form id="rebuild_relations" method="post" action="rebuild_relations" enctype="multipart/form-data">
+        <h3>Purge and rebuild relation-catalog</h3>
+        <p>Clicking here will do the following:</p>
+        <ul>
+          <li>Get all relations from zc.relation catalog and store them in a annotation on the portal.</li>
+          <li>Remove all entries form zc.relation catalog.</li>
+          <li>Restore relations from the annotation on the portal.</li>
+        </ul>
+        <p>Warning: If you have a lot of relations this can take some time. Check the log for details!</p>
+
+        <button class="context" type="submit" name="rebuild" value="rebuild" i18n:translate="">Rebuild</button>
+
+      </form>
+    </div>
+
+  </metal:content-core>
+
+</body>
+
+</html>

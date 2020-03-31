@@ -8,7 +8,6 @@ from plone.app.linkintegrity.utils import referencedRelationship
 from plone.app.uuid.utils import uuidToObject
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import iterSchemataForType
-from plone.protect.interfaces import IDisableCSRFProtection
 from Products.Five.browser import BrowserView
 from z3c.relationfield import event
 from z3c.relationfield import RelationValue
@@ -18,7 +17,6 @@ from zc.relation.interfaces import ICatalog
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.component import queryUtility
-from zope.interface import alsoProvides
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
 
@@ -31,16 +29,33 @@ RELATIONS_KEY = 'ALL_REFERENCES'
 
 class RebuildRelations(BrowserView):
 
-    def __call__(self):
-        alsoProvides(self.request, IDisableCSRFProtection)
-        rebuild_relations()
-        return u'Done'
+    def __call__(self, rebuild=False):
+        self.done = False
+        if rebuild:
+            rebuild_relations()
+            self.done = True
+            api.portal.show_message(u'Finished! See log for details.', self.request)
+
+        self.info = get_relations_stats()
+        return self.index()
 
 
-def rebuild_relations():
+
+def rebuild_relations(report=False):
     store_relations()
     purge_relations()
     restore_relations()
+
+
+def get_relations_stats():
+    info = defaultdict(int)
+    relation_catalog = getUtility(ICatalog)
+    for rel in relation_catalog.findRelations():
+        if rel.isBroken():
+            info[rel.from_attribute + ' (broken)'] += 1
+        else:
+            info[rel.from_attribute] += 1
+    return info
 
 
 def get_all_relations():
@@ -48,7 +63,7 @@ def get_all_relations():
     Logs some useful statistics.
     """
     results = []
-    log_info = defaultdict(int)
+    info = defaultdict(int)
 
     relation_catalog = getUtility(ICatalog)
     for rel in relation_catalog.findRelations():
@@ -58,9 +73,9 @@ def get_all_relations():
                 'to_uuid': rel.to_object.UID(),
                 'from_attribute': rel.from_attribute,
             })
-            log_info[rel.from_attribute] += 1
+            info[rel.from_attribute] += 1
     msg = ''
-    for k, v in log_info.items():
+    for k, v in info.items():
         msg += u'{}: {}\n'.format(k, v)
     logger.info(u'\nFound the following relations:\n{}'.format(msg))
     return results
