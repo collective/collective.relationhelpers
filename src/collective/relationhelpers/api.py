@@ -40,7 +40,7 @@ class RebuildRelations(BrowserView):
         return self.index()
 
 
-def rebuild_relations(report=False):
+def rebuild_relations(context=None):
     store_relations()
     purge_relations()
     restore_relations()
