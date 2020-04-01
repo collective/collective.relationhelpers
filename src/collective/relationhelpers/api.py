@@ -191,6 +191,72 @@ def restore_relations(context=None):
     del IAnnotations(portal)[RELATIONS_KEY]
 
 
+def link_objects(source, target, relationship):
+    """Create a relation from source to target using zc.relation
+
+    For RelationChoice or RelationList it will add the relation as attribute.
+    Other relations they will only be added to the relation-catalog.
+    """
+    relation_catalog = getUtility(ICatalog)
+    intids = getUtility(IIntIds)
+    to_id = intids.getId(target)
+    from_attribute = relationship
+
+    # Check if there is exactly this relation.
+    # If so remove it and create a fresh one.
+    query = {
+        'from_attribute': from_attribute,
+        'from_id': source.UID(),
+        'to_id': target.UID(),
+        }
+    for rel in relation_catalog.findRelations(query):
+        relation_catalog.unindex(rel)
+
+    if from_attribute == referencedRelationship:
+        # Don't mess with linkintegrity-relations!
+        # Refresh them by triggering this subscriber.
+        modifiedContent(source, None)
+        return
+
+    if from_attribute == ITERATE_RELATION_NAME:
+        # Iterate relations use a subclass of RelationValue
+        relation = StagingRelationValue(to_id)
+        event._setRelation(source, ITERATE_RELATION_NAME, relation)
+        return
+
+    fti = getUtility(IDexterityFTI, name=source.portal_type)
+    field_and_schema = get_field_and_schema_for_fieldname(from_attribute, fti)
+
+    if field_and_schema is None:
+        # The relationship is not the name of a field. Only create a relation.
+        logger.info(u'No field. Setting relation {} from {} to {}'.format(
+            source.absolute_url(), target.absolute_url(), relationship))
+        event._setRelation(source, from_attribute, RelationValue(to_id))
+        return
+
+    field, schema = field_and_schema
+
+    if isinstance(field, RelationList):
+        logger.info('Add relation to relationlist {} from {} to {}'.format(
+            from_attribute, source.absolute_url(), target.absolute_url()))
+        existing_relations = getattr(source, from_attribute, [])
+        existing_relations.append(RelationValue(to_id))
+        setattr(source, from_attribute, existing_relations)
+        modified(source)
+        return
+
+    elif isinstance(field, RelationChoice):
+        logger.info('Add relation {} from {} to {}'.format(
+            from_attribute, source.absolute_url(), target.absolute_url()))
+        setattr(source, from_attribute, RelationValue(to_id))
+        modified(source)
+        return
+
+    # We should never end up here!
+    logger.info('Warning: Unexpected relation {} from {} to {}'.format(
+        from_attribute, source.absolute_url(), target.absolute_url()))
+
+
 def get_relations(obj, attribute, backrefs=False, fullobj=False):
     """Get specific relations or backrelations for a content object
     TODO: Maybe check view permissions and conditionally return stubs
