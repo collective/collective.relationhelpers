@@ -11,6 +11,7 @@ from plone.dexterity.utils import iterSchemataForType
 from Products.Five.browser import BrowserView
 from z3c.relationfield import event
 from z3c.relationfield import RelationValue
+from z3c.relationfield.schema import Relation
 from z3c.relationfield.schema import RelationChoice
 from z3c.relationfield.schema import RelationList
 from zc.relation.interfaces import ICatalog
@@ -167,7 +168,7 @@ def restore_relations(context=None):
             modified_relation_lists[from_attribute].append(item['from_uuid'])
             continue
 
-        elif isinstance(field, RelationChoice):
+        elif isinstance(field, (Relation, RelationChoice)):
             logger.info('Add relation {} from {} to {}'.format(
                 from_attribute, source_obj.absolute_url(), target_obj.absolute_url()))
             setattr(source_obj, from_attribute, relation)
@@ -245,7 +246,7 @@ def link_objects(source, target, relationship):
         modified(source)
         return
 
-    elif isinstance(field, RelationChoice):
+    elif isinstance(field, (Relation, RelationChoice)):
         logger.info('Add relation {} from {} to {}'.format(
             from_attribute, source.absolute_url(), target.absolute_url()))
         setattr(source, from_attribute, RelationValue(to_id))
