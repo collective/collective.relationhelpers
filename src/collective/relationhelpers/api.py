@@ -1,4 +1,5 @@
 # -*- coding: UTF-8 -*-
+from collections import Counter
 from collections import defaultdict
 from plone import api
 from plone.app.iterate.dexterity import ITERATE_RELATION_NAME
@@ -21,6 +22,7 @@ from zope.component import queryUtility
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
 
+import json
 import logging
 
 logger = logging.getLogger(__name__)
@@ -44,6 +46,7 @@ class RebuildRelations(BrowserView):
 def rebuild_relations(context=None):
     store_relations()
     purge_relations()
+    cleanup_intids()
     restore_relations()
 
 
@@ -74,6 +77,8 @@ def get_all_relations():
                 'from_attribute': rel.from_attribute,
             })
             info[rel.from_attribute] += 1
+        else:
+            logger.info(u'Dropping relation {} from {} to {}'.format(rel.from_attribute, rel.from_object, rel.to_object))
     msg = ''
     for k, v in info.items():
         msg += u'{}: {}\n'.format(k, v)
@@ -85,11 +90,21 @@ def store_relations(context=None):
     """Store all relations in a annotation on the portal.
     """
     all_relations = get_all_relations()
-    portal = api.portal.get()
     IAnnotations(portal)[RELATIONS_KEY] = all_relations
     logger.info('Stored {0} relations on the portal'.format(
         len(all_relations))
     )
+
+
+def export_relations(context=None):
+    """Store all relations in a annotation on the portal.
+    """
+    all_relations = get_all_relations()
+    with open('all_relations.json', 'w') as f:
+        json.dump(all_relations, f)
+        logger.info('Stored {0} relations as all_relations.json'.format(
+            len(all_relations))
+        )
 
 
 def purge_relations(context=None):
@@ -102,12 +117,13 @@ def purge_relations(context=None):
     logger.info('Purged zc.relation catalog')
 
 
-def restore_relations(context=None):
+def restore_relations(context=None, all_relations=None):
     """Restore relations from a annotation on the portal.
     """
 
     portal = api.portal.get()
-    all_relations = IAnnotations(portal)[RELATIONS_KEY]
+    if all_relations is None:
+        all_relations = IAnnotations(portal)[RELATIONS_KEY]
     logger.info('Loaded {0} relations to restore'.format(
         len(all_relations))
     )
@@ -188,8 +204,9 @@ def restore_relations(context=None):
         # fix linkintegrity-relations for items that were not yet modified
         modifiedContent(uuidToObject(uuid), None)
 
-    # purge annotation from portal
-    del IAnnotations(portal)[RELATIONS_KEY]
+    # purge annotation from portal if they exist
+    if RELATIONS_KEY in IAnnotations(portal):
+        del IAnnotations(portal)[RELATIONS_KEY]
 
 
 def link_objects(source, target, relationship):
@@ -336,14 +353,24 @@ def get_field_and_schema_for_fieldname(field_id, fti):
             return (field, schema)
 
 
-# TODO: Find all kind of broken values in intid?
 def cleanup_intids(context=None):
     intids = getUtility(IIntIds)
-    for ref in intids.refs.values():
-        if 'RelationValue' in repr(ref.object):
-            if not ref.object.to_object or not ref.object.from_object:
-                intids.unregister(ref)
+    all_refs = ['{}.{}'.format(i.object.__class__.__module__, i.object.__class__.__name__)
+                for i in intids.refs.values()]
+    log.info(Counter(all_refs))
 
-    for item in intids.ids:
-        if 'broken' in repr(item.object):
+    count = 0
+    refs = [i for i in intids.refs.values() if isinstance(i.object, RelationValue)]
+    for ref in refs:
+        intids.unregister(ref)
+        count += 1
+    log.info('Removed all {} RelationValues from IntId-tool'.format(count))
+
+    count = 0
+    for ref in intids.refs.values():
+        if 'broken' in repr(ref.object):
             intids.unregister(ref)
+    log.info('Removed {} broken refs from IntId-tool'.format(count))
+    all_refs = ['{}.{}'.format(i.object.__class__.__module__, i.object.__class__.__name__)
+                for i in intids.refs.values()]
+    log.info(Counter(all_refs))
