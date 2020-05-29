@@ -275,7 +275,7 @@ def link_objects(source, target, relationship):
         from_attribute, source.absolute_url(), target.absolute_url()))
 
 
-def get_relations(obj, attribute, backrefs=False, fullobj=False):
+def get_relations(obj, attribute=None, backrefs=False, fullobj=False):
     """Get specific relations or backrelations for a content object
     TODO: Maybe check view permissions and conditionally return stubs
     """
@@ -323,7 +323,7 @@ def get_relations(obj, attribute, backrefs=False, fullobj=False):
     return retval
 
 
-def get_backrelations(obj, attribute, fullobj=False):
+def get_backrelations(obj, attribute=None, fullobj=False):
     """Get backrelations"""
     return get_relations(
         obj, attribute=attribute, backrefs=True, fullobj=fullobj)
