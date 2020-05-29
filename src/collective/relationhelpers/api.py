@@ -90,6 +90,7 @@ def store_relations(context=None):
     """Store all relations in a annotation on the portal.
     """
     all_relations = get_all_relations()
+    portal = api.portal.get()
     IAnnotations(portal)[RELATIONS_KEY] = all_relations
     logger.info('Stored {0} relations on the portal'.format(
         len(all_relations))
@@ -226,7 +227,7 @@ def link_objects(source, target, relationship):
         'from_attribute': from_attribute,
         'from_id': source.UID(),
         'to_id': target.UID(),
-        }
+    }
     for rel in relation_catalog.findRelations(query):
         relation_catalog.unindex(rel)
 
@@ -357,20 +358,20 @@ def cleanup_intids(context=None):
     intids = getUtility(IIntIds)
     all_refs = ['{}.{}'.format(i.object.__class__.__module__, i.object.__class__.__name__)
                 for i in intids.refs.values()]
-    log.info(Counter(all_refs))
+    logger.info(Counter(all_refs))
 
     count = 0
     refs = [i for i in intids.refs.values() if isinstance(i.object, RelationValue)]
     for ref in refs:
         intids.unregister(ref)
         count += 1
-    log.info('Removed all {} RelationValues from IntId-tool'.format(count))
+    logger.info('Removed all {} RelationValues from IntId-tool'.format(count))
 
     count = 0
     for ref in intids.refs.values():
         if 'broken' in repr(ref.object):
             intids.unregister(ref)
-    log.info('Removed {} broken refs from IntId-tool'.format(count))
+    logger.info('Removed {} broken refs from IntId-tool'.format(count))
     all_refs = ['{}.{}'.format(i.object.__class__.__module__, i.object.__class__.__name__)
                 for i in intids.refs.values()]
-    log.info(Counter(all_refs))
+    logger.info(Counter(all_refs))
