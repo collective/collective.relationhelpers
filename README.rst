@@ -12,10 +12,10 @@ To learn more about relations read https://training.plone.org/5/mastering-plone/
 
 
 Features
---------
+========
 
 Rebuild all relations
-^^^^^^^^^^^^^^^^^^^^^
+---------------------
 
 There is a form ``http://localhost:8080/Plone/@@rebuild_relations`` that rebuilds all relations.
 
@@ -28,7 +28,7 @@ First import the api: ``from collective.relationhelpers import api as relapi``
 
 
 Dealing with all relations at once
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------------
 
 Especially during migrations (e.g. between Archetypes and Dexteriy or from Python 2 to 3) you need to deal with relations.
 
@@ -58,7 +58,7 @@ These methods can help:
 
 
 Dealing with relations on individual objects
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------------------------
 
 ``relapi.link_objects(source, target, relationship)``
     Link objects: Create a relation between two objects using the specified relationship.
@@ -89,7 +89,7 @@ Dealing with relations on individual objects
 
 
 Installation
-------------
+============
 
 Install collective.relationhelpers by adding it to your buildout::
 
@@ -105,19 +105,19 @@ and then running ``bin/buildout``.
 
 
 Contribute
-----------
+==========
 
 - Issue Tracker: https://github.com/collective/collective.relationhelpers/issues
 - Source Code: https://github.com/collective/collective.relationhelpers
 
 
 Support
--------
+=======
 
 If you are having issues, please create a ticket.
 
 
 License
--------
+=======
 
 The project is licensed under the GPLv2.
