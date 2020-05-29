@@ -6,7 +6,7 @@
 collective.relationhelpers
 ==========================
 
-Helpers for dealing with relations in Plone.
+Helpers to manage, create, export and rebuild relations in Plone
 
 To learn more about relations read https://training.plone.org/5/mastering-plone/relations.html
 
@@ -22,17 +22,21 @@ There is a form ``http://localhost:8080/Plone/@@rebuild_relations`` that rebuild
 It exports all valid reations from the relation-catalog, purges the relation-catalog (and the intid-catalog) and restores all valid relations.
 
 
-It uses some helper methods that you can use in your own projects or upgrade-steps.
+Use it in you own projects
+--------------------------
 
-First import the api: ``from collective.relationhelpers import api as relapi``
+The form uses some methods that you can use in your own projects or in your upgrade-steps.
+They are a great addition to the helpers in https://github.com/collective/collective.migrationhelpers
+
 
 
 Dealing with all relations at once
 ----------------------------------
 
-Especially during migrations (e.g. between Archetypes and Dexteriy or from Python 2 to 3) you need to deal with relations.
+Especially during migrations (e.g. between Archetypes and Dexteriy or from Python 2 to 3) you need to deal with all relations at once.
+For example the relation-catalog and the intid-catalog could hold references to broken or removes objects.
 
-These methods can help:
+First import the api: ``from collective.relationhelpers import api as relapi``
 
 ``relapi.rebuild_relations()``
     Rebuild all relations using the same code as the form ``@@rebuild_relations``

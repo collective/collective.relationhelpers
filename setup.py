@@ -15,7 +15,7 @@ long_description = '\n\n'.join([
 setup(
     name='collective.relationhelpers',
     version='1.0a2.dev0',
-    description="An add-on for Plone",
+    description="Helpers to manage, create, export and rebuild relations in Plone",
     long_description=long_description,
     # Get more from https://pypi.org/classifiers/
     classifiers=[
@@ -27,6 +27,7 @@ setup(
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "Operating System :: OS Independent",
         "License :: OSI Approved :: GNU General Public License v2 (GPLv2)",
     ],
@@ -69,7 +70,5 @@ setup(
     entry_points="""
     [z3c.autoinclude.plugin]
     target = plone
-    [console_scripts]
-    update_locale = collective.relationhelpers.locales.update:update_locale
     """,
 )
