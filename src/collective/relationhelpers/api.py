@@ -279,7 +279,7 @@ def link_objects(source, target, relationship):
 
 # Main API method
 
-def get_relations(obj, attribute=None, backrefs=False, restricted=True, as_dict=False):
+def get_relations(obj, attribute=None, backrels=False, restricted=True, as_dict=False):
     """Get specific relations or backrelations for a content object
     """
     results = []
@@ -294,10 +294,7 @@ def get_relations(obj, attribute=None, backrefs=False, restricted=True, as_dict=
         return results
 
     query = {}
-    if attribute:
-        query['from_attribute'] = attribute
-
-    if backrefs:
+    if backrels:
         query['to_id'] = int_id
     else:
         query['from_id'] = int_id
@@ -306,12 +303,26 @@ def get_relations(obj, attribute=None, backrefs=False, restricted=True, as_dict=
         sm = getSecurityManager()
         checkPermission = getSecurityManager().checkPermission
 
-    relations = relation_catalog.findRelations(query)
+    if attribute and isinstance(attribute, (list, tuple)):
+        # The relation-catalog does not support queries for multiple from_attributes
+        # We make multiple queries to support this use-case.
+        relations = []
+        for from_attribute in attribute:
+            query['from_attribute'] = from_attribute
+            relations.extend(relation_catalog.findRelations(query))
+    elif attribute:
+        # query with one attribute
+        query['from_attribute'] = attribute
+        relations = relation_catalog.findRelations(query)
+    else:
+        # query without constraint on a attribute
+        relations = relation_catalog.findRelations(query)
+
     for relation in relations:
         if relation.isBroken():
             continue
 
-        if backrefs:
+        if backrels:
             obj = relation.from_object
         else:
             obj = relation.to_object
@@ -347,12 +358,12 @@ def unrestricted_relations(obj, attribute=None, as_dict=False):
 
 def backrelations(obj, attribute=None, as_dict=False):
     """Get objects with a relation to this object."""
-    return get_relations(obj, attribute=attribute, backrefs=True, restricted=True, as_dict=as_dict)
+    return get_relations(obj, attribute=attribute, backrels=True, restricted=True, as_dict=as_dict)
 
 
 def unrestricted_backrelations(obj, attribute=None, as_dict=False):
     """Get objects with a relation to this object without permission check"""
-    return get_relations(obj, attribute=attribute, backrefs=True, restricted=False, as_dict=as_dict)
+    return get_relations(obj, attribute=attribute, backrels=True, restricted=False, as_dict=as_dict)
 
 
 # Convenience api to deal with relationchoice
@@ -365,12 +376,19 @@ def relation(obj, attribute, restricted=True):
         raise RuntimeError(u'Missing parameter "attribute"')
 
     check_for_relationchoice(obj, attribute)
-    items = get_relations(obj, attribute=attribute, restricted=False)
+    items = get_relations(obj, attribute=attribute, restricted=restricted)
     if items:
         return items[0]
 
 
-def backrelation(obj, attribute):
+def unrestricted_relation(obj, attribute):
+    """Get related object without permission checks.
+    Only valid if the attribute is the name of a relationChoice field on the object.
+    """
+    return relation(obj, attribute=attribute, restricted=False)
+
+
+def backrelation(obj, attribute, restricted=True):
     """Get relating object.
     This makes sense when only one item has a relation of this type to obj.
     One example is parent -> child where only one parent can exist.
@@ -378,7 +396,7 @@ def backrelation(obj, attribute):
     if not attribute:
         raise RuntimeError(u'Missing parameter "attribute"')
 
-    items = get_relations(obj, attribute=attribute, backrefs=True)
+    items = get_relations(obj, attribute=attribute, backrels=True, restricted=restricted)
     if len(items) > 1:
         raise RuntimeError(u'Multiple incoming relations of type {}.'.format(attribute))
 
@@ -388,19 +406,28 @@ def backrelation(obj, attribute):
         return source_obj
 
 
-def check_for_relationchoice(source_obj, attribute):
-    """Raise a exception if the attribute is no rewlationchoice field."""
-    fti = getUtility(IDexterityFTI, name=source_obj.portal_type)
+def unrestricted_backrelation(obj, attribute):
+    """Get relating object without permission checks.
+    This makes sense when only one item has a relation of this type to obj.
+    One example is parent -> child where only one parent can exist.
+    """
+    return backrelation(obj, attribute, restricted=False)
+
+
+def check_for_relationchoice(obj, attribute):
+    """Raise a exception if the attribute is no RelationChoice field for the object.
+    """
+    fti = getUtility(IDexterityFTI, name=obj.portal_type)
     field_and_schema = get_field_and_schema_for_fieldname(attribute, fti)
     if field_and_schema is None:
         # No field found
         raise RuntimeError(u'{} is no field on {}.'.format(
-            attribute, source_obj.portal_type))
+            attribute, obj.portal_type))
     field, schema = field_and_schema
     if not isinstance(field, (Relation, RelationChoice)):
         # No RelationChoice field found
         raise RuntimeError(u'{} is no RelationChoice field for {}.'.format(
-            attribute, source_obj.portal_type))
+            attribute, obj.portal_type))
 
 
 def get_intid(obj):
