@@ -300,7 +300,6 @@ def get_relations(obj, attribute=None, backrels=False, restricted=True, as_dict=
         query['from_id'] = int_id
 
     if restricted:
-        sm = getSecurityManager()
         checkPermission = getSecurityManager().checkPermission
 
     if attribute and isinstance(attribute, (list, tuple)):
