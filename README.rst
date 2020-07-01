@@ -64,6 +64,33 @@ First import the api: ``from collective.relationhelpers import api as relapi``
 Dealing with relations on individual objects
 --------------------------------------------
 
+**Convenience methods:**
+
+``relations(obj, attribute=None, as_dict=False)``
+    Get related objects.
+
+``unrestricted_relations(obj, attribute=None, as_dict=False)``
+    Get related objects without permission checks.
+
+``backrelations(obj, attribute=None, as_dict=False)``
+    Get objects with a relation to this object.
+
+``unrestricted_backrelations(obj, attribute=None, as_dict=False)``
+    Get objects with a relation to this object without permission checks.
+
+``relation(obj, attribute)``
+    Get related object. This is only valid if the attribute is the name of a relationChoice field on the object.
+
+``unrestricted_relation(obj, attribute)``
+    Get related object without permission checks. See relation
+
+``backrelation(obj, attribute)``
+    Get relating object. This only makes sense when one item has a relation of this type to the obj.
+    One example is parent -> child where only one parent can exist.
+
+``unrestricted_backrelation(obj, attribute)``
+    Get relating object without permission checks. See backrelation
+
 ``relapi.link_objects(source, target, relationship)``
     Link objects: Create a relation between two objects using the specified relationship.
     From the parameter ``relationship`` the method will find out what kind of relationship you want to create (RelationChoice, RelationList) by inspecting the schema-field on the source-object.
@@ -71,25 +98,15 @@ Dealing with relations on individual objects
 
     Example: To use the default-behavior ``plone.relateditems`` use the field-name ``relatedItems`` as relationship: ``relapi.link_objects(obj, anotherobj, 'relatedItems')``.
 
-``relapi.get_relations(obj, attribute=None, backrefs=False, fullobj=False)``
+
+**Main method to get all kinds of relations:**
+
+``relapi.get_relations(obj, attribute=None, backrels=False, restricted=True, as_dict=False)``
     Get a list of incoming or outgoing relation for a specific content object.
 
-    If you pass a attribute (i.e. the ``from_attribute`` of the relation) you can use it to get only specific relations.
+    If you pass a attribute you only get relations of that type. This is the same as the fieldname on the source-object and the ``from_attribute`` on a RelationValue. You can also pass a list if attributes to get relations of certain types.
 
-    The result is returned as a dict with the following values:
-
-    ``id``: The id of the related or relating (for backreferences) object
-
-    ``href``: The url of the object
-
-    ``title``: The title
-
-    ``relation``: The name of the relation (i.e. field).
-
-    ``fullobj``: The obj (optional)
-
-``relapi.get_backrelations(obj, attribute=None, fullobj=False)``
-    Wrapper for ``get_relations`` that only return backrelations.
+    By default the result is a list of objects. If you set as_dict=True it will return a dict with the names of the relations as keys and lists of objects as values.
 
 
 Installation
