@@ -8,6 +8,7 @@ from plone.app.iterate.dexterity.relation import StagingRelationValue
 from plone.app.linkintegrity.handlers import modifiedContent
 from plone.app.linkintegrity.utils import referencedRelationship
 from plone.app.uuid.utils import uuidToObject
+from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import iterSchemataForType
 from Products.Five.browser import BrowserView
@@ -144,6 +145,15 @@ def restore_relations(context=None, all_relations=None):
     for item in all_relations:
         source_obj = uuidToObject(item['from_uuid'])
         target_obj = uuidToObject(item['to_uuid'])
+
+        if not IDexterityContent.providedBy(source_obj):
+            logger.info(u'{} is no dexterity content'.format(source_obj.portal_type))
+            continue
+
+        if not IDexterityContent.providedBy(target_obj):
+            logger.info(u'{} is no dexterity content'.format(target_obj.portal_type))
+            continue
+
         from_attribute = item['from_attribute']
         to_id = intids.getId(target_obj)
 
@@ -217,6 +227,14 @@ def link_objects(source, target, relationship):
     For RelationChoice or RelationList it will add the relation as attribute.
     Other relations they will only be added to the relation-catalog.
     """
+    if not IDexterityContent.providedBy(source):
+        logger.info(u'{} is no dexterity content'.format(source.portal_type))
+        return
+
+    if not IDexterityContent.providedBy(target):
+        logger.info(u'{} is no dexterity content'.format(target.portal_type))
+        return
+
     relation_catalog = getUtility(ICatalog)
     intids = getUtility(IIntIds)
     to_id = intids.getId(target)
@@ -244,7 +262,10 @@ def link_objects(source, target, relationship):
         event._setRelation(source, ITERATE_RELATION_NAME, relation)
         return
 
-    fti = getUtility(IDexterityFTI, name=source.portal_type)
+    fti = queryUtility(IDexterityFTI, name=source.portal_type)
+    if not fti:
+        logger.info(u'{} is no dexterity content'.format(source.portal_type))
+        return
     field_and_schema = get_field_and_schema_for_fieldname(from_attribute, fti)
 
     if field_and_schema is None:
@@ -282,6 +303,10 @@ def link_objects(source, target, relationship):
 def get_relations(obj, attribute=None, backrels=False, restricted=True, as_dict=False):
     """Get specific relations or backrelations for a content object
     """
+    if not IDexterityContent.providedBy(obj):
+        logger.info(u'{} is no dexterity content'.format(obj))
+        return
+
     results = []
     if as_dict:
         results = defaultdict(list)
