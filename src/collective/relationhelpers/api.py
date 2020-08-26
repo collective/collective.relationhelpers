@@ -2,6 +2,7 @@
 from AccessControl.SecurityManagement import getSecurityManager
 from collections import Counter
 from collections import defaultdict
+from five.intid.intid import addIntIdSubscriber
 from plone import api
 from plone.app.iterate.dexterity import ITERATE_RELATION_NAME
 from plone.app.iterate.dexterity.relation import StagingRelationValue
@@ -11,6 +12,7 @@ from plone.app.uuid.utils import uuidToObject
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import iterSchemataForType
+from Products.CMFCore.interfaces import IContentish
 from Products.Five.browser import BrowserView
 from z3c.relationfield import event
 from z3c.relationfield import RelationValue
@@ -511,3 +513,20 @@ def cleanup_intids(context=None):
     all_refs = ['{}.{}'.format(i.object.__class__.__module__, i.object.__class__.__name__)
                 for i in intids.refs.values()]
     logger.info(Counter(all_refs))
+
+
+def clear_intids():
+    intids = getUtility(IIntIds)
+    intids.ids = intids.family.OI.BTree()
+    intids.refs = intids.family.IO.BTree()
+
+
+def rebuild_intids():
+    def add_to_intids(obj, path):
+        if IContentish.providedBy(obj):
+            logger.info('{0} at {1}'.format(obj,path))
+            addIntIdSubscriber(obj, None)
+    portal = api.portal.get()
+    portal.ZopeFindAndApply(portal,
+                            search_sub=True,
+                            apply_func=add_to_intids)
