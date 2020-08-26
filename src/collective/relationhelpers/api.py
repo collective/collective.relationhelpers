@@ -73,12 +73,15 @@ def get_all_relations():
     relation_catalog = getUtility(ICatalog)
     for rel in relation_catalog.findRelations():
         if rel.from_object and rel.to_object:
-            results.append({
-                'from_uuid': rel.from_object.UID(),
-                'to_uuid': rel.to_object.UID(),
-                'from_attribute': rel.from_attribute,
-            })
-            info[rel.from_attribute] += 1
+            try:
+                results.append({
+                    'from_uuid': rel.from_object.UID(),
+                    'to_uuid': rel.to_object.UID(),
+                    'from_attribute': rel.from_attribute,
+                })
+                info[rel.from_attribute] += 1
+            except AttributeError as ex:
+                logger.info(u'Something went wrong while storing {0}: \n {1}'.format(rel, ex))
         else:
             logger.info(u'Dropping relation {} from {} to {}'.format(rel.from_attribute, rel.from_object, rel.to_object))
     msg = ''
