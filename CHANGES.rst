@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.0a2 (unreleased)
+1.0a2 (2020-09-15)
 ------------------
 
 - Modify Api:
