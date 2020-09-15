@@ -14,7 +14,7 @@ long_description = '\n\n'.join([
 
 setup(
     name='collective.relationhelpers',
-    version='1.0a2',
+    version='1.0a3.dev0',
     description="Helpers to manage, create, export and rebuild relations in Plone",
     long_description=long_description,
     # Get more from https://pypi.org/classifiers/
