@@ -134,12 +134,15 @@ def restore_relations(context=None, all_relations=None):
     modified_items = []
     modified_relation_lists = defaultdict(list)
 
-    # remove duplicates
-    unique_relations = set(tuple(tuple([i['from_uuid'], i['to_uuid'], i['from_attribute']]) for i in all_relations))
+    # remove duplicates but keep original order
+    seen = set()
+    seen_add = seen.add
+    unique_relations = [i for i in all_relations if not (tuple(i.items()) in seen or seen_add(tuple(i.items())))]
+
     if len(unique_relations) < len(all_relations):
         logger.info('Dropping {0} duplicates'.format(
             len(all_relations) - len(unique_relations)))
-        all_relations = [{'from_uuid': i[0], 'to_uuid': i[1], 'from_attribute': i[2]} for i in unique_relations]
+        all_relations = unique_relations
 
     intids = getUtility(IIntIds)
     for item in all_relations:
