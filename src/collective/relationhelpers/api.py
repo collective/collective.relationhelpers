@@ -149,6 +149,14 @@ def restore_relations(context=None, all_relations=None):
         source_obj = uuidToObject(item['from_uuid'])
         target_obj = uuidToObject(item['to_uuid'])
 
+        if not source_obj:
+            logger.info(u'{} is missing'.format(item['from_uuid']))
+            continue
+
+        if not target_obj:
+            logger.info(u'{} is missing'.format(item['to_uuid']))
+            continue
+
         if not IDexterityContent.providedBy(source_obj):
             logger.info(u'{} is no dexterity content'.format(source_obj.portal_type))
             continue
@@ -184,7 +192,7 @@ def restore_relations(context=None, all_relations=None):
         relation = RelationValue(to_id)
 
         if isinstance(field, RelationList):
-            logger.info('Add relation {} from {} to {}'.format(
+            logger.info('Add relation to relationslist {} from {} to {}'.format(
                 from_attribute, source_obj.absolute_url(), target_obj.absolute_url()))
             if item['from_uuid'] in modified_relation_lists.get(from_attribute, []):
                 # Do not purge relations
