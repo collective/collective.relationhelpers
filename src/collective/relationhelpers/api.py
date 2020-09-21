@@ -202,7 +202,6 @@ def restore_relations(context=None, all_relations=None):
                 existing_relations = []
             existing_relations.append(relation)
             setattr(source_obj, from_attribute, existing_relations)
-            modified(source_obj)
             modified_items.append(item['from_uuid'])
             modified_relation_lists[from_attribute].append(item['from_uuid'])
             continue
@@ -211,7 +210,6 @@ def restore_relations(context=None, all_relations=None):
             logger.info('Add relation {} from {} to {}'.format(
                 from_attribute, source_obj.absolute_url(), target_obj.absolute_url()))
             setattr(source_obj, from_attribute, relation)
-            modified(source_obj)
             modified_items.append(item['from_uuid'])
             continue
 
@@ -220,11 +218,11 @@ def restore_relations(context=None, all_relations=None):
             logger.info('Warning: Unexpected relation {} from {} to {}'.format(
                 from_attribute, source_obj.absolute_url(), target_obj.absolute_url()))
 
-    to_update = [i for i in update_linkintegrity if i not in modified_items]
+    to_update = set(update_linkintegrity + modified_items)
     if to_update:
-        logger.info('Recreating linkintegrity for {} items'.format(len(to_update)))
-    for uuid in to_update:
-        # fix linkintegrity-relations for items that were not yet modified
+        logger.info('Reindexing {} items'.format(len(to_update)))
+    for uuid in sorted(to_update):
+        # call modified for all changed items
         modifiedContent(uuidToObject(uuid), None)
 
     # purge annotation from portal if they exist
