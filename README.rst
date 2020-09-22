@@ -109,6 +109,49 @@ Dealing with relations on individual objects
     By default the result is a list of objects. If you set as_dict=True it will return a dict with the names of the relations as keys and lists of objects as values.
 
 
+Dealing with Archetypes-Relations
+---------------------------------
+
+This package does not support Archetypes but it can be of great help to migrate relations form Archetypes to Dexterity.
+Here are two upgrade-steps. The first stores all relations (AT and DX) as a annotation on the portal). Run that in Plone 4 or 5 if you still have AT content. The second restores them. Run it after you migrated all your content to Dexterity.
+
+
+    # Map References used with of Archetypes (Plone 4) to the ones used in Plone 5 with Dexterity
+    RELATIONSHIP_FIELD_MAPPING = {
+        'Working Copy Relation': 'iterate-working-copy',
+        'relatesTo': 'relatedItems',
+    }
+
+    IGNORE = [
+        'translationOf',  # LinguaPlone relation
+    ]
+
+
+    def store_relations(context=None):
+        from plone.app.contenttypes.migration.utils import store_references
+        portal = api.portal.get()
+        store_references(portal)
+
+
+    def restore_relations(context=None):
+        portal = api.portal.get()
+        all_stored_relations = IAnnotations(portal)['ALL_REFERENCES']
+        log.info('Loaded {0} relations to restore'.format(
+            len(all_stored_relations))
+        )
+        all_fixed_relations = []
+        for rel in all_stored_relations:
+            if rel['relationship'] in ignore:
+                continue
+            # plone.app.contenttypes exports references with 'relationship' but relationshelpers
+            # expects 'from_attribute' which is what zc.relation uses.
+            # Also some relationships have changed their name
+            rel['from_attribute'] = RELATIONSHIP_FIELD_MAPPING.get(rel['relationship'], rel['relationship'])
+            all_fixed_relations.append(rel)
+        all_fixed_relations = sorted(all_fixed_relations, key=itemgetter('from_uuid', 'from_attribute'))
+        relapi.restore_relations(all_relations=all_fixed_relations)
+
+
 Installation
 ============
 
