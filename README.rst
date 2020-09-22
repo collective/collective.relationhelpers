@@ -113,8 +113,16 @@ Dealing with Archetypes-Relations
 ---------------------------------
 
 This package does not support Archetypes but it can be of great help to migrate relations form Archetypes to Dexterity.
-Here are two upgrade-steps. The first stores all relations (AT and DX) as a annotation on the portal). Run that in Plone 4 or 5 if you still have AT content. The second restores them. Run it after you migrated all your content to Dexterity.
+Here are two upgrade-steps.
 
+The first stores all relations (AT and DX) as a annotation on the portal). Run that in Plone 4 or 5 if you still have AT content.::
+
+    def store_relations(context=None):
+        from plone.app.contenttypes.migration.utils import store_references
+        portal = api.portal.get()
+        store_references(portal)
+
+The second restores them. Run it after you migrated all your content to Dexterity.::
 
     # Map References used with of Archetypes (Plone 4) to the ones used in Plone 5 with Dexterity
     RELATIONSHIP_FIELD_MAPPING = {
@@ -125,13 +133,6 @@ Here are two upgrade-steps. The first stores all relations (AT and DX) as a anno
     IGNORE = [
         'translationOf',  # LinguaPlone relation
     ]
-
-
-    def store_relations(context=None):
-        from plone.app.contenttypes.migration.utils import store_references
-        portal = api.portal.get()
-        store_references(portal)
-
 
     def restore_relations(context=None):
         portal = api.portal.get()
