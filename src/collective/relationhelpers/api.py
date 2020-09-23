@@ -36,10 +36,10 @@ RELATIONS_KEY = 'ALL_REFERENCES'
 
 class RebuildRelations(BrowserView):
 
-    def __call__(self, rebuild=False):
+    def __call__(self, rebuild=False, flush_and_rebuild_intids=False):
         self.done = False
         if rebuild:
-            rebuild_relations()
+            rebuild_relations(flush_and_rebuild_intids=flush_and_rebuild_intids)
             self.done = True
             api.portal.show_message(u'Finished! See log for details.', self.request)
 
@@ -47,10 +47,14 @@ class RebuildRelations(BrowserView):
         return self.index()
 
 
-def rebuild_relations(context=None):
+def rebuild_relations(context=None, flush_and_rebuild_intids=False):
     store_relations()
     purge_relations()
-    cleanup_intids()
+    if flush_and_rebuild_intids:
+        flush_intids()
+        rebuild_intids()
+    else:
+        cleanup_intids()
     restore_relations()
 
 
@@ -515,13 +519,17 @@ def cleanup_intids(context=None):
     logger.info(Counter(all_refs))
 
 
-def clear_intids():
+def flush_intids():
+    """ Flush all intids
+    """
     intids = getUtility(IIntIds)
     intids.ids = intids.family.OI.BTree()
     intids.refs = intids.family.IO.BTree()
 
 
 def rebuild_intids():
+    """ Create new intids
+    """
     def add_to_intids(obj, path):
         if IContentish.providedBy(obj):
             logger.info('{0} at {1}'.format(obj,path))
