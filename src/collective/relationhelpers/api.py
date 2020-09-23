@@ -532,7 +532,7 @@ def rebuild_intids():
     """
     def add_to_intids(obj, path):
         if IContentish.providedBy(obj):
-            logger.info('{0} at {1}'.format(obj,path))
+            logger.info('Added {0} at {1} to intid'.format(obj, path))
             addIntIdSubscriber(obj, None)
     portal = api.portal.get()
     portal.ZopeFindAndApply(portal,
