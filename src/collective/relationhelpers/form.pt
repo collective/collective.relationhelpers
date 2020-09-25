@@ -66,10 +66,16 @@
         <ul>
           <li>Get all relations from zc.relation catalog and store them in a annotation on the portal.</li>
           <li>Remove all entries form zc.relation catalog.</li>
+          <li>Clean up or flush and rebuild intids - this depends on your selection below</li>
           <li>Restore relations from the annotation on the portal.</li>
         </ul>
         <p>Warning: If you have a lot of relations this can take some time. Check the log for details!</p>
-
+        <label for="flush_intids" >Flush and rebuild intids</label>
+        <input type="checkbox" name="flush_and_rebuild_intids" id="flush_intids">
+        <p>
+          This will delete all intids and create new one.
+          Warning: If you have relations on tiles, flushing and rebuilding intids will destroy them b/c intids changed.
+        </p>
         <button class="context" type="submit" name="rebuild" value="rebuild" i18n:translate="">Rebuild</button>
 
       </form>

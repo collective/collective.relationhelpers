@@ -2,6 +2,7 @@
 from AccessControl.SecurityManagement import getSecurityManager
 from collections import Counter
 from collections import defaultdict
+from five.intid.intid import addIntIdSubscriber
 from plone import api
 from plone.app.iterate.dexterity import ITERATE_RELATION_NAME
 from plone.app.iterate.dexterity.relation import StagingRelationValue
@@ -11,6 +12,7 @@ from plone.app.uuid.utils import uuidToObject
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import iterSchemataForType
+from Products.CMFCore.interfaces import IContentish
 from Products.Five.browser import BrowserView
 from z3c.relationfield import event
 from z3c.relationfield import RelationValue
@@ -35,10 +37,10 @@ RELATIONS_KEY = 'ALL_REFERENCES'
 
 class RebuildRelations(BrowserView):
 
-    def __call__(self, rebuild=False):
+    def __call__(self, rebuild=False, flush_and_rebuild_intids=False):
         self.done = False
         if rebuild:
-            rebuild_relations()
+            rebuild_relations(flush_and_rebuild_intids=flush_and_rebuild_intids)
             self.done = True
             api.portal.show_message(u'Finished! See log for details.', self.request)
 
@@ -46,10 +48,14 @@ class RebuildRelations(BrowserView):
         return self.index()
 
 
-def rebuild_relations(context=None):
+def rebuild_relations(context=None, flush_and_rebuild_intids=False):
     store_relations()
     purge_relations()
-    cleanup_intids()
+    if flush_and_rebuild_intids:
+        flush_intids()
+        rebuild_intids()
+    else:
+        cleanup_intids()
     restore_relations()
 
 
@@ -74,12 +80,15 @@ def get_all_relations():
     relation_catalog = getUtility(ICatalog)
     for rel in relation_catalog.findRelations():
         if rel.from_object and rel.to_object:
-            results.append({
-                'from_uuid': rel.from_object.UID(),
-                'to_uuid': rel.to_object.UID(),
-                'from_attribute': rel.from_attribute,
-            })
-            info[rel.from_attribute] += 1
+            try:
+                results.append({
+                    'from_uuid': rel.from_object.UID(),
+                    'to_uuid': rel.to_object.UID(),
+                    'from_attribute': rel.from_attribute,
+                })
+                info[rel.from_attribute] += 1
+            except AttributeError as ex:
+                logger.info(u'Something went wrong while storing {0}: \n {1}'.format(rel, ex))
         else:
             logger.info(u'Dropping relation {} from {} to {}'.format(rel.from_attribute, rel.from_object, rel.to_object))
     msg = ''
@@ -511,3 +520,24 @@ def cleanup_intids(context=None):
     all_refs = ['{}.{}'.format(i.object.__class__.__module__, i.object.__class__.__name__)
                 for i in intids.refs.values()]
     logger.info(Counter(all_refs))
+
+
+def flush_intids():
+    """ Flush all intids
+    """
+    intids = getUtility(IIntIds)
+    intids.ids = intids.family.OI.BTree()
+    intids.refs = intids.family.IO.BTree()
+
+
+def rebuild_intids():
+    """ Create new intids
+    """
+    def add_to_intids(obj, path):
+        if IContentish.providedBy(obj):
+            logger.info('Added {0} at {1} to intid'.format(obj, path))
+            addIntIdSubscriber(obj, None)
+    portal = api.portal.get()
+    portal.ZopeFindAndApply(portal,
+                            search_sub=True,
+                            apply_func=add_to_intids)
