@@ -14,6 +14,7 @@ from plone.dexterity.utils import iterSchemataForType
 from Products.Five.browser import BrowserView
 from z3c.relationfield import event
 from z3c.relationfield import RelationValue
+from z3c.relationfield.event import updateRelations
 from z3c.relationfield.schema import Relation
 from z3c.relationfield.schema import RelationChoice
 from z3c.relationfield.schema import RelationList
@@ -130,8 +131,8 @@ def restore_relations(context=None, all_relations=None):
     logger.info('Loaded {0} relations to restore'.format(
         len(all_relations))
     )
-    update_linkintegrity = []
-    modified_items = []
+    update_linkintegrity = set()
+    modified_items = set()
     modified_relation_lists = defaultdict(list)
 
     # remove duplicates but keep original order
@@ -170,7 +171,7 @@ def restore_relations(context=None, all_relations=None):
 
         if from_attribute == referencedRelationship:
             # Ignore linkintegrity for now. We'll rebuilt it at the end!
-            update_linkintegrity.append(item['from_uuid'])
+            update_linkintegrity.add(item['from_uuid'])
             continue
 
         if from_attribute == ITERATE_RELATION_NAME:
@@ -202,7 +203,7 @@ def restore_relations(context=None, all_relations=None):
                 existing_relations = []
             existing_relations.append(relation)
             setattr(source_obj, from_attribute, existing_relations)
-            modified_items.append(item['from_uuid'])
+            modified_items.add(item['from_uuid'])
             modified_relation_lists[from_attribute].append(item['from_uuid'])
             continue
 
@@ -210,7 +211,7 @@ def restore_relations(context=None, all_relations=None):
             logger.info('Add relation {} from {} to {}'.format(
                 from_attribute, source_obj.absolute_url(), target_obj.absolute_url()))
             setattr(source_obj, from_attribute, relation)
-            modified_items.append(item['from_uuid'])
+            modified_items.add(item['from_uuid'])
             continue
 
         else:
@@ -218,16 +219,18 @@ def restore_relations(context=None, all_relations=None):
             logger.info('Warning: Unexpected relation {} from {} to {}'.format(
                 from_attribute, source_obj.absolute_url(), target_obj.absolute_url()))
 
-    to_update = set(update_linkintegrity + modified_items)
-    if to_update:
-        logger.info('Reindexing {} items'.format(len(to_update)))
-    for uuid in sorted(to_update):
-        # call modified for all changed items
+    update_linkintegrity = set(update_linkintegrity)
+    logger.info('Updating linkintegrity for {} items'.format(len(update_linkintegrity)))
+    for uuid in sorted(update_linkintegrity):
         modifiedContent(uuidToObject(uuid), None)
+    logger.info('Updating relations for {} items'.format(len(modified_items)))
+    for uuid in sorted(modified_items):
+        updateRelations(uuidToObject(uuid), None)
 
     # purge annotation from portal if they exist
     if RELATIONS_KEY in IAnnotations(portal):
         del IAnnotations(portal)[RELATIONS_KEY]
+    logger.info('Done!')
 
 
 def link_objects(source, target, relationship):
