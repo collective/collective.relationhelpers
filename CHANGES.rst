@@ -2,8 +2,8 @@ Changelog
 =========
 
 
-1.0a3 (unreleased)
-------------------
+1.0 (2020-10-02)
+----------------
 
 - Add functions to clear and rebuild intids.
   [krissik]
