@@ -155,7 +155,9 @@ def restore_relations(context=None, all_relations=None):
         all_relations = unique_relations
 
     intids = getUtility(IIntIds)
-    for item in all_relations:
+    for index, item in enumerate(all_relations, start=1):
+        if not index % 500:
+            logger.info(u'Restored {} of {} relations...'.format(index, len(all_relations)))
         source_obj = uuidToObject(item['from_uuid'])
         target_obj = uuidToObject(item['to_uuid'])
 
