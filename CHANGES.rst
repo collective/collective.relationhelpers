@@ -5,7 +5,11 @@ Changelog
 1.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Work around a problem with z3c.relationfield.event.updateRelations that prevented relations from behaviors that are registered with a marker-interface from being registered.
+  [pbauer]
+
+- Add progress-logger when restoring relations
+  [pbauer]
 
 
 1.0 (2020-10-02)

@@ -8,6 +8,7 @@ from plone.app.iterate.dexterity import ITERATE_RELATION_NAME
 from plone.app.iterate.dexterity.relation import StagingRelationValue
 from plone.app.linkintegrity.handlers import modifiedContent
 from plone.app.linkintegrity.utils import referencedRelationship
+from plone.app.relationfield.event import update_behavior_relations
 from plone.app.uuid.utils import uuidToObject
 from plone.dexterity.interfaces import IDexterityContent
 from plone.dexterity.interfaces import IDexterityFTI
@@ -236,7 +237,13 @@ def restore_relations(context=None, all_relations=None):
         modifiedContent(uuidToObject(uuid), None)
     logger.info('Updating relations for {} items'.format(len(modified_items)))
     for uuid in sorted(modified_items):
-        updateRelations(uuidToObject(uuid), None)
+        obj = uuidToObject(uuid)
+        # updateRelations from z3c.relationfield does not properly update relations in behaviors
+        # that are registered with a marker-interface.
+        # update_behavior_relations (from plone.app.relationfield) does that but does not update
+        # those in the main schema. Duh!
+        updateRelations(obj, None)
+        update_behavior_relations(obj, None)
 
     # purge annotation from portal if they exist
     if RELATIONS_KEY in IAnnotations(portal):
