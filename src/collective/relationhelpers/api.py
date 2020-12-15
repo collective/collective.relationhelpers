@@ -146,11 +146,12 @@ def restore_relations(context=None, all_relations=None):
     modified_relation_lists = defaultdict(list)
 
     # remove duplicates but keep original order
+    unique_relations = []
     seen = set()
     seen_add = seen.add
     for i in all_relations:
         hashable = tuple(i.items())
-        if not hashable in seen:
+        if hashable not in seen:
             unique_relations.append(i)
             seen_add(hashable)
         else:
