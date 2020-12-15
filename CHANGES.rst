@@ -5,6 +5,9 @@ Changelog
 1.1 (unreleased)
 ----------------
 
+- Log duplicates when dropping them during restore_relations.
+  [pbauer]
+
 - Work around a problem with z3c.relationfield.event.updateRelations that prevented relations from behaviors that are registered with a marker-interface from being registered.
   [pbauer]
 

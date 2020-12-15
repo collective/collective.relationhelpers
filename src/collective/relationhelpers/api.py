@@ -148,7 +148,13 @@ def restore_relations(context=None, all_relations=None):
     # remove duplicates but keep original order
     seen = set()
     seen_add = seen.add
-    unique_relations = [i for i in all_relations if not (tuple(i.items()) in seen or seen_add(tuple(i.items())))]
+    for i in all_relations:
+        hashable = tuple(i.items())
+        if not hashable in seen:
+            unique_relations.append(i)
+            seen_add(hashable)
+        else:
+            logger.info(u'Dropping duplicate: {}'.format(hashable))
 
     if len(unique_relations) < len(all_relations):
         logger.info('Dropping {0} duplicates'.format(
