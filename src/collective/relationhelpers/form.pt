@@ -22,9 +22,9 @@
         Current number of relations in the zc.relation catalog
       </h3>
 
-      <table class="listing"
-            tal:define="info python: getattr(view, 'info', None)"
-            tal:condition="info">
+      <table class="listing table table-striped"
+            tal:define="relations_stats python: getattr(view, 'relations_stats', None)"
+            tal:condition="python: relations_stats">
         <thead>
           <tr>
             <th>Relation</th>
@@ -32,9 +32,17 @@
           </tr>
         </thead>
         <tbody>
-          <tr tal:repeat="item python:info">
-            <td tal:content="python:item">Type</td>
-            <td tal:content="python:info[item]">Amount</td>
+          <tr tal:repeat="item python:relations_stats">
+            <td>
+              <a href=""
+                 target="_blank"
+                 tal:attributes="href python:'@@relationinfo?relation={}'.format(item)"
+                 tal:content="python:item"
+                 title="Inspect relations">
+               Type
+              </a>
+            </td>
+            <td tal:content="python:relations_stats[item]">Amount</td>
           </tr>
         </tbody>
       </table>
@@ -60,7 +68,7 @@
         <dd>Custom attribute/fieldname used to describe the relation</dd>
       </dl>
 
-      <form id="rebuild_relations" method="post" action="rebuild_relations" enctype="multipart/form-data">
+      <form id="rebuild_relations" method="post" action="@@rebuild_relations" enctype="multipart/form-data">
         <h3>Purge and rebuild relation-catalog</h3>
         <p>Clicking here will do the following:</p>
         <ul>
@@ -69,14 +77,17 @@
           <li>Clean up or flush and rebuild intids - this depends on your selection below</li>
           <li>Restore relations from the annotation on the portal.</li>
         </ul>
-        <p>Warning: If you have a lot of relations this can take some time. Check the log for details!</p>
-        <label for="flush_intids" >Flush and rebuild intids</label>
-        <input type="checkbox" name="flush_and_rebuild_intids" id="flush_intids">
-        <p>
-          This will delete all intids and create new one.
-          Warning: If you have relations on tiles, flushing and rebuilding intids will destroy them b/c intids changed.
-        </p>
-        <button class="context" type="submit" name="rebuild" value="rebuild" i18n:translate="">Rebuild</button>
+
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="flush_and_rebuild_intids" id="flush_intids">
+          <label class="form-check-label" for="flush_intids" >Flush and rebuild intids</label>
+          <p>
+             This will delete all intids and create new one.<br/>
+             Warning: If you have a lot of relations this can take some time. Check the log for details!<br/>
+             If you have relations on tiles, flushing and rebuilding intids will destroy them b/c intids changed.
+          </p>
+        </div>
+        <button class="context btn btn-danger" type="submit" name="rebuild" value="rebuild" i18n:translate="">Rebuild</button>
 
       </form>
     </div>

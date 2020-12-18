@@ -45,7 +45,44 @@ class RebuildRelations(BrowserView):
             self.done = True
             api.portal.show_message(u'Finished! See log for details.', self.request)
 
-        self.info = get_relations_stats()
+        self.relations_stats = get_relations_stats()
+        return self.index()
+
+
+class RelationInfos(BrowserView):
+
+    def __call__(self, relation=None):
+        self.relation = relation or self.request.get('relation')
+        self.relations = []
+        self.relations_stats = get_relations_stats()
+
+        if not self.relation:
+            api.portal.show_message(u'You need to select a relation', self.request)
+            return self.index()
+
+        intids = queryUtility(IIntIds)
+        relation_catalog = getUtility(ICatalog)
+        query = {'from_attribute': self.relation}
+        info = defaultdict(list)
+        for rel in relation_catalog.findRelations(query):
+            info[rel.from_id].append(rel.to_id)
+
+        for source_id in info:
+            source = intids.getObject(source_id)
+            item = {}
+            item['source'] = {
+                'title': source.title,
+                'url': source.absolute_url(),
+            }
+            item['targets'] = []
+            for target_id in info[source_id]:
+                target = intids.getObject(target_id)
+                item['targets'].append({
+                    'title': target.title,
+                    'url': target.absolute_url(),
+                    })
+            self.relations.append(item)
+
         return self.index()
 
 

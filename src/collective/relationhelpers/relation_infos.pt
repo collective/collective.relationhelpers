@@ -1,0 +1,73 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="collective.relationhelpers">
+
+<body>
+
+  <metal:content-core fill-slot="main">
+
+    <header>
+      <h1 class="documentFirstHeading">Inspect relation <strong tal:content="python: view.relation">relation</strong></h1>
+    </header>
+
+    <div id="content-core"
+         tal:define="relations_stats python: view.relations_stats">
+
+      <form id="relationinfo" method="post" action="@@relationinfo" enctype="multipart/form-data">
+
+        <select class="form-select" aria-label="Default select example" name="relation" id="relation">
+          <option value="">Select relation</option>
+          <tal:rels tal:repeat="relation python: relations_stats">
+            <option tal:attributes="value python: relation;
+                                    selected python:view.relation == relation"
+                    tal:content="python:'{} ({})'.format(relation, relations_stats[relation])">
+                relationname (amount)
+            </option>
+          </tal:rels>
+        </select>
+        <button class="context btn btn-primary" type="submit" name="submit" value="submit" i18n:translate="">Go!</button>
+
+      </form>
+
+      <table class="listing table table-striped"
+             tal:condition="python:view.relations">
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Target(s)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr tal:repeat="item python:view.relations">
+            <td>
+              <a tal:attributes="href python:item['source']['url']"
+                 tal:content="python:item['source']['title']">
+                Object
+              </a>
+            </td>
+            <td>
+              <ul>
+                <li tal:repeat="target python:item['targets']">
+                  <a href=""
+                     tal:attributes="href python:target['url']"
+                     tal:content="python:target['title']">
+                    Target
+                  </a>
+                </li>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+  </metal:content-core>
+
+</body>
+
+</html>
