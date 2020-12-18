@@ -73,6 +73,7 @@ class RelationInfos(BrowserView):
             item['source'] = {
                 'title': source.title,
                 'url': source.absolute_url(),
+                'portal_type': source.portal_type,
             }
             item['targets'] = []
             for target_id in info[source_id]:
@@ -80,6 +81,7 @@ class RelationInfos(BrowserView):
                 item['targets'].append({
                     'title': target.title,
                     'url': target.absolute_url(),
+                    'portal_type': target.portal_type,
                     })
             self.relations.append(item)
 

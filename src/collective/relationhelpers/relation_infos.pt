@@ -45,7 +45,8 @@
         <tbody>
           <tr tal:repeat="item python:view.relations">
             <td>
-              <a tal:attributes="href python:item['source']['url']"
+              <a tal:attributes="href python:item['source']['url'];
+                                 title python:item['source']['portal_type'];"
                  tal:content="python:item['source']['title']">
                 Object
               </a>
@@ -54,11 +55,13 @@
               <ul>
                 <li tal:repeat="target python:item['targets']">
                   <a href=""
-                     tal:attributes="href python:target['url']"
+                     tal:attributes="href python:target['url'];
+                                     title python:target['portal_type']; "
                      tal:content="python:target['title']">
                     Target
                   </a>
                 </li>
+              </ul>
             </td>
           </tr>
         </tbody>
