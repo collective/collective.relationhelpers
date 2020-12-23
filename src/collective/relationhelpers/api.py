@@ -51,37 +51,45 @@ class RebuildRelations(BrowserView):
 
 class RelationInfos(BrowserView):
 
-    def __call__(self, relation=None):
+    def __call__(self, relation=None, inspect_backrelation=False):
         self.relation = relation or self.request.get('relation')
+        self.inspect_backrelation = inspect_backrelation or self.request.get('inspect_backrelation')
+
         self.relations = []
         self.relations_stats = get_relations_stats()
 
         if not self.relation:
-            api.portal.show_message(u'You need to select a relation', self.request)
+            api.portal.show_message(u'Please select a relation', self.request)
             return self.index()
 
         intids = queryUtility(IIntIds)
         relation_catalog = getUtility(ICatalog)
         query = {'from_attribute': self.relation}
         info = defaultdict(list)
-        for rel in relation_catalog.findRelations(query):
-            info[rel.from_id].append(rel.to_id)
 
-        for source_id in info:
-            source = intids.getObject(source_id)
+        # relations: column_1 = source, column_2 = target(s)
+        # backrelation: column_1 = target, column_2 source(s)
+        for rel in relation_catalog.findRelations(query):
+            if self.inspect_backrelation:
+                info[rel.to_id].append(rel.from_id)
+            else:
+                info[rel.from_id].append(rel.to_id)
+
+        for column_1_intid in info:
+            obj = intids.getObject(column_1_intid)
             item = {}
-            item['source'] = {
-                'title': source.title,
-                'url': source.absolute_url(),
-                'portal_type': source.portal_type,
+            item['column_1'] = {
+                'title': obj.title,
+                'url': obj.absolute_url(),
+                'portal_type': obj.portal_type,
             }
-            item['targets'] = []
-            for target_id in info[source_id]:
-                target = intids.getObject(target_id)
-                item['targets'].append({
-                    'title': target.title,
-                    'url': target.absolute_url(),
-                    'portal_type': target.portal_type,
+            item['column_2'] = []
+            for column_2_intid in info[column_1_intid]:
+                obj = intids.getObject(column_2_intid)
+                item['column_2'].append({
+                    'title': obj.title,
+                    'url': obj.absolute_url(),
+                    'portal_type': obj.portal_type,
                     })
             self.relations.append(item)
 
