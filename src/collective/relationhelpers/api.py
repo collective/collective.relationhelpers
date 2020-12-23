@@ -57,6 +57,7 @@ class RelationInfos(BrowserView):
 
         self.relations = []
         self.relations_stats = get_relations_stats()
+        view_action = api.portal.get_registry_record('plone.types_use_view_action_in_listings')
 
         if not self.relation:
             api.portal.show_message(u'Please select a relation', self.request)
@@ -77,18 +78,22 @@ class RelationInfos(BrowserView):
 
         for column_1_intid in info:
             obj = intids.getObject(column_1_intid)
+            use_view_action = obj.portal_type in view_action
+            url = obj.absolute_url() + '/view' if use_view_action else obj.absolute_url()
             item = {}
             item['column_1'] = {
                 'title': obj.title,
-                'url': obj.absolute_url(),
+                'url': url,
                 'portal_type': obj.portal_type,
             }
             item['column_2'] = []
             for column_2_intid in info[column_1_intid]:
                 obj = intids.getObject(column_2_intid)
+                use_view_action = obj.portal_type in view_action
+                url = obj.absolute_url() + '/view' if use_view_action else obj.absolute_url()
                 item['column_2'].append({
                     'title': obj.title,
-                    'url': obj.absolute_url(),
+                    'url': url,
                     'portal_type': obj.portal_type,
                     })
             self.relations.append(item)
