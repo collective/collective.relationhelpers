@@ -6,60 +6,13 @@
 collective.relationhelpers
 ==========================
 
-Helpers to manage, create, export and rebuild relations in Plone
+Helpers to manage, create, export, inspect and rebuild relations in Plone
 
 To learn more about relations read https://training.plone.org/5/mastering-plone/relations.html
 
 
 Features
 ========
-
-Rebuild all relations
----------------------
-
-There is a form ``http://localhost:8080/Plone/@@rebuild_relations`` that rebuilds all relations.
-
-It exports all valid reations from the relation-catalog, purges the relation-catalog (and the intid-catalog) and restores all valid relations.
-
-
-Use it in you own projects
---------------------------
-
-The form uses some methods that you can use in your own projects or in your upgrade-steps.
-They are a great addition to the helpers in https://github.com/collective/collective.migrationhelpers
-
-
-
-Dealing with all relations at once
-----------------------------------
-
-Especially during migrations (e.g. between Archetypes and Dexteriy or from Python 2 to 3) you need to deal with all relations at once.
-For example the relation-catalog and the intid-catalog could hold references to broken or removes objects.
-
-First import the api: ``from collective.relationhelpers import api as relapi``
-
-``relapi.rebuild_relations()``
-    Rebuild all relations using the same code as the form ``@@rebuild_relations``
-
-``relapi.get_all_relations()``
-    Get all relations as a list of dicts.
-
-``relapi.export_relations()``
-    Export all relations as a json file ``all_relations.json`` in you buildout directory.
-
-``relapi.store_relations()``
-    Export all relations and store them as a annotation on the portal ``IAnnotations(portal)['ALL_REFERENCES']``.
-
-``relapi.cleanup_intids()``
-    Purge all RelationValues and all references to broken objects from the IntId catalog.
-
-``relapi.get_relations_stats()``
-    Log information on all existing relations
-
-``relapi.restore_relations(all_relations=None)``
-    Recreate relations from a annotation on the portal or a list of dicts (e.g. restored from the json-file created by ``export_relations``).
-    This works fine for all kinds of relations, RelationList- or RelationChoice-fields (including the default field "Related Items") as well as for linkintegrity-relations and relations between working-copies.
-
 
 Dealing with relations on individual objects
 --------------------------------------------
@@ -107,6 +60,53 @@ Dealing with relations on individual objects
     If you pass a attribute you only get relations of that type. This is the same as the fieldname on the source-object and the ``from_attribute`` on a RelationValue. You can also pass a list if attributes to get relations of certain types.
 
     By default the result is a list of objects. If you set as_dict=True it will return a dict with the names of the relations as keys and lists of objects as values.
+
+
+Dealing with all relations at once
+----------------------------------
+
+Especially during migrations (e.g. between Archetypes and Dexteriy or from Python 2 to 3) you need to deal with all relations at once.
+For example the relation-catalog and the intid-catalog could hold references to broken or removes objects.
+
+First import the api: ``from collective.relationhelpers import api as relapi``
+
+``relapi.rebuild_relations()``
+    Rebuild all relations using the same code as the form ``@@rebuild_relations``
+
+``relapi.get_all_relations()``
+    Get all relations as a list of dicts.
+
+``relapi.export_relations()``
+    Export all relations as a json file ``all_relations.json`` in you buildout directory.
+
+``relapi.store_relations()``
+    Export all relations and store them as a annotation on the portal ``IAnnotations(portal)['ALL_REFERENCES']``.
+
+``relapi.cleanup_intids()``
+    Purge all RelationValues and all references to broken objects from the IntId catalog.
+
+``relapi.get_relations_stats()``
+    Log information on all existing relations
+
+``relapi.restore_relations(all_relations=None)``
+    Recreate relations from a annotation on the portal or a list of dicts (e.g. restored from the json-file created by ``export_relations``).
+    This works fine for all kinds of relations, RelationList- or RelationChoice-fields (including the default field "Related Items") as well as for linkintegrity-relations and relations between working-copies.
+
+
+Rebuild all relations
+---------------------
+
+There is a form ``http://localhost:8080/Plone/@@rebuild_relations`` that rebuilds all relations.
+
+It exports all valid reations from the relation-catalog, purges the relation-catalog (and the intid-catalog) and restores all valid relations.
+
+
+Inspect relations
+-----------------
+
+There is a view ``http://localhost:8080/Plone/@@relationinfo`` that allows you to inspect all relations in your site:
+
+.. image:: https://raw.githubusercontent.com/collective/collective.relationhelpers/master/docs/relationinfo.png
 
 
 Dealing with Archetypes-Relations

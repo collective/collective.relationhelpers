@@ -10,7 +10,15 @@
       name="rebuild_relations"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
       class=".api.RebuildRelations"
-      template="form.pt"
+      template="rebuild_relations.pt"
+      permission="cmf.ManagePortal"
+      />
+
+  <browser:page
+      name="relationinfo"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      class=".api.RelationInfos"
+      template="relation_infos.pt"
       permission="cmf.ManagePortal"
       />
 
