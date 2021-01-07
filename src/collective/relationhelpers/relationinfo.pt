@@ -56,7 +56,7 @@
             <label for="inspect-backrelation" class="form-check-label">
               Show backrelations
             </label>
-            <div class="form-text">Display targets grouped by sources.</div>
+            <div class="form-text">Display relations grouped by their target.</div>
           </div>
         </div>
 
