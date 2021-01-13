@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.2 (unreleased)
+1.2 (2021-01-13)
 ----------------
 
 - Add view /@@relationinfo to inspect relations.
