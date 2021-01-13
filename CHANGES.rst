@@ -5,7 +5,8 @@ Changelog
 1.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Add view /@@relationinfo to inspect relations.
+  [pbauer]
 
 
 1.1 (2020-12-15)
