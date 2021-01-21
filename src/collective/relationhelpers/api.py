@@ -327,14 +327,15 @@ def link_objects(source, target, relationship):
     relation_catalog = getUtility(ICatalog)
     intids = getUtility(IIntIds)
     to_id = intids.getId(target)
+    from_id = intids.getId(source)
     from_attribute = relationship
 
     # Check if there is exactly this relation.
     # If so remove it and create a fresh one.
     query = {
         'from_attribute': from_attribute,
-        'from_id': source.UID(),
-        'to_id': target.UID(),
+        'from_id': from_id,
+        'to_id': to_id,
     }
     for rel in relation_catalog.findRelations(query):
         relation_catalog.unindex(rel)
