@@ -5,7 +5,8 @@ Changelog
 1.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Fixed query for existing relations in ``link_objects``.
+  [maurits]
 
 
 1.2 (2021-01-13)
