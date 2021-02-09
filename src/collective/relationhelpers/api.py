@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 RELATIONS_KEY = 'ALL_REFERENCES'
 
 
-class RebuildRelations(BrowserView):
+class RebuildRelationsControlpanel(BrowserView):
 
     def __call__(self, rebuild=False, flush_and_rebuild_intids=False):
         self.done = False
@@ -49,7 +49,7 @@ class RebuildRelations(BrowserView):
         return self.index()
 
 
-class RelationInfos(BrowserView):
+class InspectRelationsControlpanel(BrowserView):
 
     def __call__(self, relation=None, inspect_backrelation=False):
         self.relation = relation or self.request.get('relation')

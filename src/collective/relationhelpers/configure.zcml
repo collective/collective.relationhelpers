@@ -9,16 +9,16 @@
   <browser:page
       name="rebuild_relations"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
-      class=".api.RebuildRelations"
+      class=".api.RebuildRelationsControlpanel"
       template="rebuild_relations.pt"
       permission="cmf.ManagePortal"
       />
 
   <browser:page
-      name="relationinfo"
+      name="inspect_relations"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
-      class=".api.RelationInfos"
-      template="relationinfo.pt"
+      class=".api.InspectRelationsControlpanel"
+      template="inspect_relations.pt"
       permission="cmf.ManagePortal"
       />
 
