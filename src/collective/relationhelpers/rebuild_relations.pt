@@ -36,7 +36,7 @@
             <td>
               <a href=""
                  target="_blank"
-                 tal:attributes="href python:'@@relationinfo?relation={}'.format(item)"
+                 tal:attributes="href python:'@@inspect_relations?relation={}'.format(item)"
                  tal:content="python:item"
                  title="Inspect relations">
                Type
