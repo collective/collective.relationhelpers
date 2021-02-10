@@ -104,7 +104,7 @@ It exports all valid reations from the relation-catalog, purges the relation-cat
 Inspect relations
 -----------------
 
-There is a view ``http://localhost:8080/Plone/@@relationinfo`` that allows you to inspect all relations in your site:
+There is a controlpanel ``http://localhost:8080/Plone/@@inspect_relations`` that allows you to inspect all relations in your site:
 
 .. image:: https://raw.githubusercontent.com/collective/collective.relationhelpers/master/docs/relationinfo.png
 

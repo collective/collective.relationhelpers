@@ -2,6 +2,8 @@
 from plone.app.contenttypes.testing import PLONE_APP_CONTENTTYPES_FIXTURE
 from plone.app.testing import FunctionalTesting
 from plone.app.testing import IntegrationTesting
+from plone.app.testing import SITE_OWNER_NAME
+from plone.app.testing import SITE_OWNER_PASSWORD
 from plone.app.testing import PloneSandboxLayer
 
 import collective.relationhelpers
@@ -18,7 +20,9 @@ class CollectiveRelationhelpersLayer(PloneSandboxLayer):
         self.loadZCML(package=collective.relationhelpers)
 
     def setUpPloneSite(self, portal):
-        pass
+        portal.acl_users.userFolderAddUser(
+            SITE_OWNER_NAME, SITE_OWNER_PASSWORD, ['Manager'], []
+        )
 
 
 COLLECTIVE_RELATIONHELPERS_FIXTURE = CollectiveRelationhelpersLayer()

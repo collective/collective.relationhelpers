@@ -45,7 +45,7 @@ class RebuildRelationsControlpanel(BrowserView):
             self.done = True
             api.portal.show_message(u'Finished! See log for details.', self.request)
 
-        self.relations_stats = get_relations_stats()
+        self.relations_stats, self.broken = get_relations_stats()
         return self.index()
 
 
@@ -56,7 +56,7 @@ class InspectRelationsControlpanel(BrowserView):
         self.inspect_backrelation = inspect_backrelation or self.request.get('inspect_backrelation')
 
         self.relations = []
-        self.relations_stats = get_relations_stats()
+        self.relations_stats, self.broken = get_relations_stats()
         view_action = api.portal.get_registry_record('plone.types_use_view_action_in_listings')
 
         if not self.relation:
@@ -71,6 +71,8 @@ class InspectRelationsControlpanel(BrowserView):
         # relations: column_1 = source, column_2 = target(s)
         # backrelation: column_1 = target, column_2 source(s)
         for rel in relation_catalog.findRelations(query):
+            if rel.isBroken():
+                continue
             if self.inspect_backrelation:
                 info[rel.to_id].append(rel.from_id)
             else:
@@ -114,13 +116,14 @@ def rebuild_relations(context=None, flush_and_rebuild_intids=False):
 
 def get_relations_stats():
     info = defaultdict(int)
+    broken = defaultdict(int)
     relation_catalog = getUtility(ICatalog)
     for rel in relation_catalog.findRelations():
         if rel.isBroken():
-            info[rel.from_attribute + ' (broken)'] += 1
+            broken[rel.from_attribute] += 1
         else:
             info[rel.from_attribute] += 1
-    return info
+    return info, broken
 
 
 def get_all_relations():

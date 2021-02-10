@@ -23,8 +23,9 @@
       </h3>
 
       <table class="listing table table-striped"
-            tal:define="relations_stats python: getattr(view, 'relations_stats', None)"
-            tal:condition="python: relations_stats">
+            tal:define="relations_stats python: getattr(view, 'relations_stats', None);
+                        broken python: getattr(view, 'broken', None)"
+            tal:condition="python: relations_stats or broken">
         <thead>
           <tr>
             <th>Relation</th>
@@ -43,6 +44,12 @@
               </a>
             </td>
             <td tal:content="python:relations_stats[item]">Amount</td>
+          </tr>
+          <tr tal:repeat="item python:broken">
+            <td>
+              <span tal:content="python:item"/> (broken)
+            </td>
+            <td tal:content="python:broken[item]">Amount</td>
           </tr>
         </tbody>
       </table>
