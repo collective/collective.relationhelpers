@@ -5,6 +5,9 @@ Changelog
 1.3 (unreleased)
 ----------------
 
+- Drop unrequired access to fti.
+  [pbauer]
+
 - Fixed query for existing relations in ``link_objects``.
   [maurits]
 

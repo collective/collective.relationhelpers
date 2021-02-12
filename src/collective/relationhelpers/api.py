@@ -11,7 +11,6 @@ from plone.app.linkintegrity.utils import referencedRelationship
 from plone.app.relationfield.event import update_behavior_relations
 from plone.app.uuid.utils import uuidToObject
 from plone.dexterity.interfaces import IDexterityContent
-from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.utils import iterSchemataForType
 from Products.CMFCore.interfaces import IContentish
 from Products.Five.browser import BrowserView
@@ -254,8 +253,7 @@ def restore_relations(context=None, all_relations=None):
             event._setRelation(source_obj, ITERATE_RELATION_NAME, relation)
             continue
 
-        fti = getUtility(IDexterityFTI, name=source_obj.portal_type)
-        field_and_schema = get_field_and_schema_for_fieldname(from_attribute, fti)
+        field_and_schema = get_field_and_schema_for_fieldname(from_attribute, source_obj.portal_type)
         if field_and_schema is None:
             # the from_attribute is no field
             # we could either create a fresh relation or log the case
@@ -355,11 +353,7 @@ def link_objects(source, target, relationship):
         event._setRelation(source, ITERATE_RELATION_NAME, relation)
         return
 
-    fti = queryUtility(IDexterityFTI, name=source.portal_type)
-    if not fti:
-        logger.info(u'{} is no dexterity content'.format(source.portal_type))
-        return
-    field_and_schema = get_field_and_schema_for_fieldname(from_attribute, fti)
+    field_and_schema = get_field_and_schema_for_fieldname(from_attribute, source.portal_type)
 
     if field_and_schema is None:
         # The relationship is not the name of a field. Only create a relation.
@@ -534,8 +528,7 @@ def unrestricted_backrelation(obj, attribute):
 def check_for_relationchoice(obj, attribute):
     """Raise a exception if the attribute is no RelationChoice field for the object.
     """
-    fti = getUtility(IDexterityFTI, name=obj.portal_type)
-    field_and_schema = get_field_and_schema_for_fieldname(attribute, fti)
+    field_and_schema = get_field_and_schema_for_fieldname(attribute, obj.portal_type)
     if field_and_schema is None:
         # No field found
         raise RuntimeError(u'{} is no field on {}.'.format(
@@ -560,12 +553,12 @@ def get_intid(obj):
         return
 
 
-def get_field_and_schema_for_fieldname(field_id, fti):
-    """Get field and its schema from a fti.
+def get_field_and_schema_for_fieldname(field_id, portal_type):
+    """Get field and its schema from a portal_type.
     """
     # Turn form.widgets.IDublinCore.title into title
     field_id = field_id.split('.')[-1]
-    for schema in iterSchemataForType(fti):
+    for schema in iterSchemataForType(portal_type):
         field = schema.get(field_id, None)
         if field is not None:
             return (field, schema)
