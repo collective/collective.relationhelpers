@@ -5,6 +5,16 @@ Changelog
 1.3 (unreleased)
 ----------------
 
+- Rename views to be the same as they will be in Plone 6.
+  See https://github.com/plone/Products.CMFPlone/issues/3231
+  [pbauer]
+
+- Add some tests.
+  [pbauer]
+
+- Add support for broken relations.
+  [pbauer]
+
 - Drop unrequired access to fti.
   [pbauer]
 

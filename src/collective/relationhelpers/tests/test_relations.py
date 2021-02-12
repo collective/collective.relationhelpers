@@ -67,7 +67,7 @@ class TestRelations(unittest.TestCase):
         stats, broken = relapi.get_relations_stats()
         self.assertEqual(dict(stats), {'relatedItems': 1})
         self.assertEqual(dict(broken), {})
-        view = api.content.get_view('inspect_relations', self.portal, self.request)
+        view = api.content.get_view('inspect-relations', self.portal, self.request)
         self.assertTrue(view())
         self.assertTrue(view(relation='relatedItems'))
 
@@ -97,6 +97,6 @@ class TestRelations(unittest.TestCase):
         stats, broken = relapi.get_relations_stats()
         self.assertEqual(dict(stats), {'relatedItems': 1})
         self.assertEqual(dict(broken), {'relatedItems': 1})
-        view = api.content.get_view('inspect_relations', self.portal, self.request)
+        view = api.content.get_view('inspect-relations', self.portal, self.request)
         self.assertTrue(view())
         self.assertTrue(view(relation='relatedItems'))

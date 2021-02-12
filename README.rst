@@ -71,7 +71,7 @@ For example the relation-catalog and the intid-catalog could hold references to 
 First import the api: ``from collective.relationhelpers import api as relapi``
 
 ``relapi.rebuild_relations()``
-    Rebuild all relations using the same code as the form ``@@rebuild_relations``
+    Rebuild all relations using the same code as the form ``@@rebuild-relations``
 
 ``relapi.get_all_relations()``
     Get all relations as a list of dicts.
@@ -96,7 +96,7 @@ First import the api: ``from collective.relationhelpers import api as relapi``
 Rebuild all relations
 ---------------------
 
-There is a form ``http://localhost:8080/Plone/@@rebuild_relations`` that rebuilds all relations.
+There is a form ``http://localhost:8080/Plone/@@rebuild-relations`` that rebuilds all relations.
 
 It exports all valid reations from the relation-catalog, purges the relation-catalog (and the intid-catalog) and restores all valid relations.
 
@@ -104,7 +104,7 @@ It exports all valid reations from the relation-catalog, purges the relation-cat
 Inspect relations
 -----------------
 
-There is a controlpanel ``http://localhost:8080/Plone/@@inspect_relations`` that allows you to inspect all relations in your site:
+There is a controlpanel ``http://localhost:8080/Plone/@@inspect-relations`` that allows you to inspect all relations in your site:
 
 .. image:: https://raw.githubusercontent.com/collective/collective.relationhelpers/master/docs/relationinfo.png
 

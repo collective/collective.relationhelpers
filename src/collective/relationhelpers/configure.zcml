@@ -7,18 +7,18 @@
     i18n_domain="collective.relationhelpers">
 
   <browser:page
-      name="rebuild_relations"
+      name="inspect-relations"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
-      class=".api.RebuildRelationsControlpanel"
-      template="rebuild_relations.pt"
+      class=".api.InspectRelationsControlpanel"
+      template="relations_inspect.pt"
       permission="cmf.ManagePortal"
       />
 
   <browser:page
-      name="inspect_relations"
+      name="rebuild-relations"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
-      class=".api.InspectRelationsControlpanel"
-      template="inspect_relations.pt"
+      class=".api.RebuildRelationsControlpanel"
+      template="relations_rebuild.pt"
       permission="cmf.ManagePortal"
       />
 
