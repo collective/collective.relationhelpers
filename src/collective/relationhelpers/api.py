@@ -68,7 +68,7 @@ class InspectRelationsControlpanel(BrowserView):
         info = defaultdict(list)
 
         # relations: column_1 = source, column_2 = target(s)
-        # backrelation: column_1 = target, column_2 source(s)
+        # backrelation: column_1 = target, column_2 = source(s)
         for rel in relation_catalog.findRelations(query):
             if rel.isBroken():
                 continue
