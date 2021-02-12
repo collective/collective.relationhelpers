@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.3 (unreleased)
+1.3 (2021-02-12)
 ----------------
 
 - Rename views to be the same as they will be in Plone 6.
