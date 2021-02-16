@@ -438,12 +438,16 @@ def get_relations(obj, attribute=None, backrels=False, restricted=True, as_dict=
         else:
             obj = relation.to_object
 
+        if not obj:
+            continue
+
         if as_dict:
             if restricted:
                 if checkPermission('View', obj):
                     results[relation.from_attribute].append(obj)
                 else:
-                    results[relation.from_attribute].append(None)
+                    # only add allowed items
+                    pass
             else:
                 results[relation.from_attribute].append(obj)
         else:
