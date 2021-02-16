@@ -83,7 +83,7 @@ class InspectRelationsControlpanel(BrowserView):
             url = obj.absolute_url() + '/view' if use_view_action else obj.absolute_url()
             item = {}
             item['column_1'] = {
-                'title': obj.title,
+                'title': obj.title_or_id(),
                 'url': url,
                 'portal_type': obj.portal_type,
             }
@@ -93,7 +93,7 @@ class InspectRelationsControlpanel(BrowserView):
                 use_view_action = obj.portal_type in view_action
                 url = obj.absolute_url() + '/view' if use_view_action else obj.absolute_url()
                 item['column_2'].append({
-                    'title': obj.title,
+                    'title': obj.title_or_id(),
                     'url': url,
                     'portal_type': obj.portal_type,
                     })
