@@ -5,7 +5,11 @@ Changelog
 1.4 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Never return None for a relation where source or target is missing.
+  [pbauer]
+
+- Use title_or_id to allow missing title.
+  [pbauer]
 
 
 1.3 (2021-02-12)
