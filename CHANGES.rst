@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.4 (unreleased)
+1.4 (2021-02-19)
 ----------------
 
 - Never return None for a relation where source or target is missing.
