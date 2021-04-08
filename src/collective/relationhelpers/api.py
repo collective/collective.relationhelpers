@@ -367,7 +367,9 @@ def link_objects(source, target, relationship):
     if isinstance(field, RelationList):
         logger.info('Add relation to relationlist {} from {} to {}'.format(
             from_attribute, source.absolute_url(), target.absolute_url()))
-        existing_relations = getattr(source, from_attribute, [])
+        existing_relations = getattr(source, from_attribute, None)
+        if not existing_relations:
+            existing_relations = []
         existing_relations.append(RelationValue(to_id))
         setattr(source, from_attribute, existing_relations)
         modified(source)

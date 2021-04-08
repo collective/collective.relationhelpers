@@ -5,7 +5,8 @@ Changelog
 1.5 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Handle case where value of relationchoice field is None instead of empty list.
+  [pbauer]
 
 
 1.4 (2021-02-19)
