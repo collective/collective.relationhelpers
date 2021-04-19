@@ -25,6 +25,7 @@ from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.component import queryUtility
 from zope.intid.interfaces import IIntIds
+from zope.intid.interfaces import IntIdMissingError
 from zope.lifecycleevent import modified
 
 import json
@@ -71,6 +72,11 @@ class InspectRelationsControlpanel(BrowserView):
         # backrelation: column_1 = target, column_2 = source(s)
         for rel in relation_catalog.findRelations(query):
             if rel.isBroken():
+                continue
+            try:
+                hasattr(rel, 'from_id')
+                hasattr(rel, 'to_id')
+            except IntIdMissingError:
                 continue
             if self.inspect_backrelation:
                 info[rel.to_id].append(rel.from_id)

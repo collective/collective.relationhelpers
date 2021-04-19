@@ -8,6 +8,9 @@ Changelog
 - Handle case where value of relationchoice field is None instead of empty list.
   [pbauer]
 
+- Fix inspecting relations that are not explicitly broken but raise a IntIdMissingError (#7).
+  [fulv]
+
 
 1.4 (2021-02-19)
 ----------------
