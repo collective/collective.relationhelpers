@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.5 (unreleased)
+1.5 (2021-04-19)
 ----------------
 
 - Handle case where value of relationchoice field is None instead of empty list.
