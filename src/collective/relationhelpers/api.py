@@ -26,6 +26,7 @@ from zope.component import getUtility
 from zope.component import queryUtility
 from zope.intid.interfaces import IIntIds
 from zope.intid.interfaces import IntIdMissingError
+from zope.intid.interfaces import ObjectMissingError
 from zope.lifecycleevent import modified
 
 import json
@@ -123,7 +124,14 @@ def get_relations_stats():
     info = defaultdict(int)
     broken = defaultdict(int)
     relation_catalog = getUtility(ICatalog)
-    for rel in relation_catalog.findRelations():
+    for token in relation_catalog.findRelationTokens():
+        try:
+            rel = relation_catalog.resolveRelationToken(token)
+        except ObjectMissingError:
+            broken['Object is missing'] += 1
+            logger.info('Intid {} has no object.'.format(token))
+            continue
+
         if rel.isBroken():
             broken[rel.from_attribute] += 1
         else:
@@ -139,7 +147,12 @@ def get_all_relations():
     info = defaultdict(int)
 
     relation_catalog = getUtility(ICatalog)
-    for rel in relation_catalog.findRelations():
+    for token in relation_catalog.findRelationTokens():
+        try:
+            rel = relation_catalog.resolveRelationToken(token)
+        except ObjectMissingError:
+            logger.info('Token {} has no object.'.format(token))
+            continue
         if rel.from_object and rel.to_object:
             try:
                 results.append({
