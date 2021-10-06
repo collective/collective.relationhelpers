@@ -4,9 +4,10 @@
     xmlns:i18n="http://namespaces.zope.org/i18n"
     xmlns:plone="http://namespaces.plone.org/plone"
     xmlns:browser="http://namespaces.zope.org/browser"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="collective.relationhelpers">
 
-  <browser:page
+  <browser:page zcml:condition="not-have plone-60"
       name="inspect-relations"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
       class=".api.InspectRelationsControlpanel"
@@ -14,7 +15,7 @@
       permission="cmf.ManagePortal"
       />
 
-  <browser:page
+  <browser:page zcml:condition="not-have plone-60"
       name="rebuild-relations"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
       class=".api.RebuildRelationsControlpanel"
