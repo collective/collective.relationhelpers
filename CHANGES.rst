@@ -2,7 +2,7 @@ Changelog
 =========
 
 
-1.6 (unreleased)
+1.6 (2021-10-11)
 ----------------
 
 - Don't registery the control panel views on Plone 6 as they have been added to Plone core. [fredvd]
