@@ -5,7 +5,7 @@ Changelog
 1.7 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Do not fail at startup when ``plone.app.iterate`` is missing.  [maurits]
 
 
 1.6 (2021-10-11)

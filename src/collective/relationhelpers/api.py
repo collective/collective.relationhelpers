@@ -4,8 +4,6 @@ from collections import Counter
 from collections import defaultdict
 from five.intid.intid import addIntIdSubscriber
 from plone import api
-from plone.app.iterate.dexterity import ITERATE_RELATION_NAME
-from plone.app.iterate.dexterity.relation import StagingRelationValue
 from plone.app.linkintegrity.handlers import modifiedContent
 from plone.app.linkintegrity.utils import referencedRelationship
 from plone.app.relationfield.event import update_behavior_relations
@@ -31,6 +29,18 @@ from zope.lifecycleevent import modified
 
 import json
 import logging
+import pkg_resources
+
+
+try:
+    pkg_resources.get_distribution("plone.app.iterate")
+except pkg_resources.DistributionNotFound:
+    ITERATE_RELATION_NAME = None
+    StagingRelationValue = None
+else:
+    from plone.app.iterate.dexterity import ITERATE_RELATION_NAME
+    from plone.app.iterate.dexterity.relation import StagingRelationValue
+
 
 logger = logging.getLogger(__name__)
 
@@ -266,7 +276,7 @@ def restore_relations(context=None, all_relations=None):
             update_linkintegrity.add(item['from_uuid'])
             continue
 
-        if from_attribute == ITERATE_RELATION_NAME:
+        if ITERATE_RELATION_NAME is not None and from_attribute == ITERATE_RELATION_NAME:
             # Iterate relations are not set as values of fields
             relation = StagingRelationValue(to_id)
             event._setRelation(source_obj, ITERATE_RELATION_NAME, relation)
