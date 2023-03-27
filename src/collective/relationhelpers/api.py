@@ -35,6 +35,25 @@ logger = logging.getLogger(__name__)
 RELATIONS_KEY = 'ALL_REFERENCES'
 
 
+def safe_find_relations(query=None):
+    relation_catalog = getUtility(ICatalog)
+    if query is None:
+        relations = relation_catalog.findRelations()
+    else:
+        relations = relation_catalog.findRelations(query)
+    for rel in relations:
+        if not hasattr(rel, 'from_object'):
+            logger.warn('Relation without from_object: %s' % rel)
+            continue
+        if not hasattr(rel, 'to_object'):
+            logger.warn('Relation without to_object: %s' % rel)
+            continue
+        if not hasattr(rel, 'from_attribute'):
+            logger.warn('Relation without from_attribute: %s' % rel)
+            continue
+        yield rel
+
+
 class RebuildRelationsControlpanel(BrowserView):
 
     def __call__(self, rebuild=False, flush_and_rebuild_intids=False):
@@ -63,13 +82,12 @@ class InspectRelationsControlpanel(BrowserView):
             return self.index()
 
         intids = queryUtility(IIntIds)
-        relation_catalog = getUtility(ICatalog)
         query = {'from_attribute': self.relation}
         info = defaultdict(list)
 
         # relations: column_1 = source, column_2 = target(s)
         # backrelation: column_1 = target, column_2 = source(s)
-        for rel in relation_catalog.findRelations(query):
+        for rel in safe_find_relations(query):
             if rel.isBroken():
                 continue
             if self.inspect_backrelation:
@@ -116,8 +134,7 @@ def rebuild_relations(context=None, flush_and_rebuild_intids=False):
 def get_relations_stats():
     info = defaultdict(int)
     broken = defaultdict(int)
-    relation_catalog = getUtility(ICatalog)
-    for rel in relation_catalog.findRelations():
+    for rel in safe_find_relations():
         if rel.isBroken():
             broken[rel.from_attribute] += 1
         else:
@@ -132,8 +149,7 @@ def get_all_relations():
     results = []
     info = defaultdict(int)
 
-    relation_catalog = getUtility(ICatalog)
-    for rel in relation_catalog.findRelations():
+    for rel in safe_find_relations():
         if rel.from_object and rel.to_object:
             try:
                 results.append({
@@ -338,7 +354,7 @@ def link_objects(source, target, relationship):
         'from_id': from_id,
         'to_id': to_id,
     }
-    for rel in relation_catalog.findRelations(query):
+    for rel in safe_find_relations(query):
         relation_catalog.unindex(rel)
 
     if from_attribute == referencedRelationship:
@@ -420,14 +436,14 @@ def get_relations(obj, attribute=None, backrels=False, restricted=True, as_dict=
         relations = []
         for from_attribute in attribute:
             query['from_attribute'] = from_attribute
-            relations.extend(relation_catalog.findRelations(query))
+            relations.extend(safe_find_relations(query))
     elif attribute:
         # query with one attribute
         query['from_attribute'] = attribute
-        relations = relation_catalog.findRelations(query)
+        relations = safe_find_relations(query)
     else:
         # query without constraint on a attribute
-        relations = relation_catalog.findRelations(query)
+        relations = safe_find_relations(query)
 
     for relation in relations:
         if relation.isBroken():
