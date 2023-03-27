@@ -1,6 +1,14 @@
 Changelog
 =========
 
+unreleased
+----------
+
+- Add a wrapper ``safe_find_relations`` for the ``z3c.relationfield.event.updateRelations`` function
+  that checks if the relation object has all necessary attributes. 
+  If not it will ignore it and log a warning.
+  [toalba]
+
 
 1.3 (2021-02-12)
 ----------------
