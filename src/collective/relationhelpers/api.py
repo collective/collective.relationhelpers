@@ -23,8 +23,6 @@ from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.component import queryUtility
 from zope.intid.interfaces import IIntIds
-from zope.intid.interfaces import IntIdMissingError
-from zope.intid.interfaces import ObjectMissingError
 from zope.lifecycleevent import modified
 
 import json
@@ -87,7 +85,7 @@ class InspectRelationsControlpanel(BrowserView):
             try:
                 hasattr(rel, 'from_id')
                 hasattr(rel, 'to_id')
-            except IntIdMissingError:
+            except KeyError:
                 continue
             if self.inspect_backrelation:
                 info[rel.to_id].append(rel.from_id)
@@ -137,7 +135,7 @@ def get_relations_stats():
     for token in relation_catalog.findRelationTokens():
         try:
             rel = relation_catalog.resolveRelationToken(token)
-        except ObjectMissingError:
+        except KeyError:
             broken['Object is missing'] += 1
             logger.info('Intid {} has no object.'.format(token))
             continue
@@ -160,7 +158,7 @@ def get_all_relations():
     for token in relation_catalog.findRelationTokens():
         try:
             rel = relation_catalog.resolveRelationToken(token)
-        except ObjectMissingError:
+        except KeyError:
             logger.info('Token {} has no object.'.format(token))
             continue
         if rel.from_object and rel.to_object:
